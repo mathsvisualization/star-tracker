@@ -47,7 +47,7 @@ star_tracker/
 Clone the repository:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/telegram-stars-tracker.git
+git@github.com:mathsvisualization/star-tracker.git
 ```
 
 Navigate into the project:
