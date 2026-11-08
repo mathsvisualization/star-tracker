@@ -1,0 +1,25 @@
+name: Question / Help
+description: Ask a question about using the application.
+title: "[QUESTION]: "
+labels: ["question"]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: What do you need help with?
+      description: Explain your question clearly.
+    validations:
+      required: true
+
+  - type: textarea
+    id: attempted
+    attributes:
+      label: What have you tried?
+      description: Explain what you have already attempted.
+
+  - type: textarea
+    id: error
+    attributes:
+      label: Error message
+      description: Include the error if you encountered one.
+      render: shell

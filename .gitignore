@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE
+.vscode/
+.idea/
+
+# Local application data
+stars_payment_report.txt
+stars_payment_report.txt.bak
+stars_payment_report.txt.tmp
+*.unverified-*
+
+# Temporary files
+*.tmp
+.DS_Store

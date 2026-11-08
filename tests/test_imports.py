@@ -1,0 +1,10 @@
+def test_project_imports():
+    import config
+    import core.calculations
+    import core.validation
+    import storage.file_manager
+    import storage.backup
+    import storage.recovery
+    import reports.report_builder
+    import ui.actions
+    import ui.menu
