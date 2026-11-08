@@ -4,13 +4,13 @@ on:
   release:
     types: [published]
 
-permissions:
-  contents: write
-
 jobs:
   build:
     name: Build Python Package
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
@@ -27,8 +27,7 @@ jobs:
           python -m pip install build
 
       - name: Build distribution
-        run: |
-          python -m build
+        run: python -m build
 
       - name: Upload release assets
         uses: softprops/action-gh-release@v2
@@ -36,3 +35,33 @@ jobs:
           files: |
             dist/*.whl
             dist/*.tar.gz
+
+      - name: Upload distributions for PyPI
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+          if-no-files-found: error
+          retention-days: 1
+
+  publish:
+    name: Publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+
+    environment:
+      name: pypi
+      url: https://pypi.org/project/telegram-stars-tracker/
+
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Download distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+
+      - name: Publish package to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
