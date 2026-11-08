@@ -53,7 +53,7 @@ git@github.com:mathsvisualization/star-tracker.git
 Navigate into the project:
 
 ```bash
-cd telegram-stars-tracker
+cd star-tracker
 ```
 
 Install in editable mode:
