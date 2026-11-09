@@ -22,10 +22,22 @@ from reports.report_builder import build_report
 from storage.file_manager import save_data
 from storage.recovery import load_data, restore_backup
 
+class CancelOperation(Exception):
+    """Raised when the user cancels the current operation."""
+    pass
+
+
+def get_input(prompt):
+    raw = input(prompt).strip()
+
+    if raw.lower() == "cancel":
+        raise CancelOperation
+
+    return raw
 
 def get_date(check_future=False):
     while True:
-        raw = input("Date (YYYY-MM-DD): ").strip()
+        raw = get_input("Date (YYYY-MM-DD): ")
 
         try:
             date = datetime.strptime(
@@ -46,7 +58,7 @@ def get_stars():
     while True:
         try:
             return parse_stars(
-                input("Enter Stars: ").strip()
+                get_input("Enter Stars: ")
             )
         except (ValueError, InvalidOperation):
             print("Enter a valid positive whole number.")
@@ -57,9 +69,9 @@ def get_rate(default=None):
         default = DEFAULT_USD_TO_INR
 
     while True:
-        raw = input(
+        raw = get_input(
             f"USD to INR rate [{default}]: "
-        ).strip()
+        )
 
         if not raw:
             return Decimal(str(default))
@@ -168,9 +180,9 @@ def delete_entry(data):
         print("\nEntry not found.")
         return
 
-    confirm = input(
+    confirm = get_input(
         "Delete this entry? (y/n): "
-    ).strip().lower()
+    ).lower()
 
     if confirm == "y":
         del data["earnings"][date]
@@ -248,9 +260,9 @@ def delete_withdrawal(data):
     if withdrawal is None:
         return
 
-    confirm = input(
+    confirm = get_input(
         "Delete this withdrawal? (y/n): "
-    ).strip().lower()
+    ).lower()
 
     if confirm == "y":
         data["withdrawals"].remove(withdrawal)
@@ -342,3 +354,4 @@ def unlock_editing(data):
 
         print("\nEditing unlocked.")
         print("Save your data to replace the current report.")
+
