@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "telegram-stars-tracker"
-version = "0.0.2"
+version = "0.0.3"
 description = "A Python application for tracking Telegram Stars earnings, withdrawals, and payment maturity."
 readme = "README.md"
 requires-python = ">=3.10"
