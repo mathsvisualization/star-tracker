@@ -325,10 +325,30 @@ def test_serialize_records(sample_data):
     ]
 
     assert records[3:] == [
-        "WITHDRAW|2026-01-25|200|104",
-        "WITHDRAW|2026-02-01|300|105",
+        "WITHDRAW|2026-01-25|200|104|0",
+        "WITHDRAW|2026-02-01|300|105|0",
     ]
 
+def test_serialize_records_includes_withdrawal_fee():
+    data = {
+        "rate": Decimal("104"),
+        "earnings": {},
+        "withdrawals": [
+            {
+                "date": "2026-01-25",
+                "stars": 200,
+                "rate": Decimal("104"),
+                "fee": Decimal("1.25"),
+            }
+        ],
+    }
+
+    records = fm.serialize_records(data)
+
+    assert records == [
+        "RATE|104",
+        "WITHDRAW|2026-01-25|200|104|1.25",
+    ]
 
 def test_serialize_records_sorts_earnings():
     data = {

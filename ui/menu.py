@@ -4,7 +4,7 @@ from ui.actions import (
     delete_entry,
     view_data,
     add_withdrawal,
-    edit_withdrawal_rate,
+    edit_withdrawal,
     delete_withdrawal,
     view_withdrawals,
     view_monthly,
@@ -26,7 +26,7 @@ MENU = """
 4.  View Earnings
 
 5.  Add Withdrawal
-6.  Edit Withdrawal Rate
+6.  Edit Withdrawal
 7.  Delete Withdrawal
 8.  View Withdrawals
 
@@ -53,7 +53,7 @@ def main():
         "3": delete_entry,
         "4": view_data,
         "5": add_withdrawal,
-        "6": edit_withdrawal_rate,
+        "6": edit_withdrawal,
         "7": delete_withdrawal,
         "8": view_withdrawals,
         "9": view_monthly,

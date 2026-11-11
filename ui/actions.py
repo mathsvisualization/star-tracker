@@ -17,7 +17,11 @@ from core.calculations import (
     scheduled_withdrawals,
 )
 
-from core.validation import parse_stars, parse_rate
+from core.validation import (
+    parse_stars,
+    parse_rate,
+    parse_fee,
+)
 from reports.report_builder import build_report
 from storage.file_manager import save_data
 from storage.recovery import load_data, restore_backup
@@ -80,6 +84,21 @@ def get_rate(default=None):
             return parse_rate(raw)
         except (ValueError, InvalidOperation):
             print("Enter a valid positive exchange rate.")
+
+
+def get_fee(default=Decimal("0")):
+    while True:
+        raw = get_input(
+            f"Withdrawal fee in USD [{default}]: "
+        )
+
+        if not raw:
+            return Decimal(str(default))
+
+        try:
+            return parse_fee(raw)
+        except (ValueError, InvalidOperation):
+            print("Enter a valid non-negative fee.")
 
 
 def check_editing(data):
@@ -217,24 +236,27 @@ def add_withdrawal(data):
     if not check_editing(data):
         return
 
-    date = get_date(check_future=True)
+    date = get_date()
     stars = get_stars()
 
     if stars > available_stars(data):
         print("\nNot enough available Stars.")
         return
 
+    fee = get_fee()
+
     data["withdrawals"].append({
         "date": date,
         "stars": stars,
         "rate": data["rate"],
+        "fee": fee,
     })
 
     save_data(data)
     print("\nWithdrawal added.")
 
 
-def edit_withdrawal_rate(data):
+def edit_withdrawal(data):
     if not check_editing(data):
         return
 
@@ -243,12 +265,71 @@ def edit_withdrawal_rate(data):
     if withdrawal is None:
         return
 
-    withdrawal["rate"] = get_rate(
-        withdrawal["rate"]
-    )
+    print("\nPress Enter to keep the existing value.")
+    print("Type cancel to cancel the operation.")
 
-    save_data(data)
-    print("\nWithdrawal rate updated.")
+    try:
+        # Collect and validate without mutating
+        # the original withdrawal.
+
+        raw_date = get_input(
+            f"Date [{withdrawal['date']}]: "
+        )
+
+        new_date = raw_date or withdrawal["date"]
+
+        if raw_date:
+            datetime.strptime(
+                new_date, DATE_INPUT_FMT
+            )
+
+        raw_stars = get_input(
+            f"Stars [{withdrawal['stars']}]: "
+        )
+
+        new_stars = (
+            parse_stars(raw_stars)
+            if raw_stars
+            else withdrawal["stars"]
+        )
+
+        new_rate = get_rate(
+            withdrawal["rate"]
+        )
+
+        new_fee = get_fee(
+            withdrawal.get("fee", Decimal("0"))
+        )
+
+        # Prepare replacement.
+        updated = {
+            **withdrawal,
+            "date": new_date,
+            "stars": new_stars,
+            "rate": new_rate,
+            "fee": new_fee,
+        }
+
+        # Replace only after all inputs are valid.
+        index = data["withdrawals"].index(withdrawal)
+        data["withdrawals"][index] = updated
+
+        try:
+            save_data(data)
+        except Exception:
+            data["withdrawals"][index] = withdrawal
+            raise
+
+        print("\nWithdrawal updated.")
+
+    except CancelOperation:
+        print("\nOperation cancelled.")
+
+    except ValueError:
+        print("\nInvalid date. Use YYYY-MM-DD.")
+
+    except Exception as err:
+        print(f"\nCould not update withdrawal: {err}")
 
 
 def delete_withdrawal(data):

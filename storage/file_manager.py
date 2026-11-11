@@ -1,4 +1,5 @@
 import os
+from decimal import Decimal
 
 from config import (
     FILE_NAME,
@@ -115,7 +116,8 @@ def serialize_records(data):
     records += [
         (
             f"WITHDRAW|{w['date']}|"
-            f"{w['stars']}|{w['rate']}"
+            f"{w['stars']}|{w['rate']}|"
+            f"{w.get('fee', Decimal('0'))}"
         )
         for w in sorted_withdrawals(data)
     ]
@@ -137,13 +139,17 @@ def validate_serialized_data(data, records):
 
     checked, issues = parse_lines(records)
 
+    expected_withdrawals = [
+        {**w, "fee": w.get("fee", Decimal("0"))}
+        for w in sorted_withdrawals(data)
+    ]
+
     if (
         issues
         or checked["rate"] != data["rate"]
         or checked["earnings"] != data["earnings"]
-        or checked["withdrawals"] != sorted_withdrawals(data)
+        or checked["withdrawals"] != expected_withdrawals
     ):
-
         details = (
             "; ".join(issues[:3])
             or "records do not match"

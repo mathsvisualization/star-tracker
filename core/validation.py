@@ -64,6 +64,20 @@ def parse_rate(text):
     return rate
 
 
+def parse_fee(text):
+    try:
+        fee = Decimal(text)
+    except InvalidOperation:
+        raise ValueError("fee must be a number")
+
+    if not fee.is_finite() or fee < 0:
+        raise ValueError(
+            "fee must be a non-negative number"
+        )
+
+    return fee
+
+
 # ==================================================
 # RECORD PARSING
 # ==================================================
@@ -100,9 +114,9 @@ def apply_record(data, tag, fields):
 
     elif tag == "WITHDRAW":
 
-        if len(fields) not in (2, 3):
+        if len(fields) not in (2, 3, 4):
             raise ValueError(
-                "WITHDRAW needs date|stars|rate"
+                "WITHDRAW needs date|stars|rate|fee"
             )
 
         date, stars, *extra = fields
@@ -115,10 +129,17 @@ def apply_record(data, tag, fields):
             else data["rate"]
         )
 
+        fee = (
+            parse_fee(extra[1])
+            if len(extra) == 2
+            else Decimal("0")
+        )
+
         data["withdrawals"].append({
             "date": date,
             "stars": parse_stars(stars),
             "rate": rate,
+            "fee": fee,
         })
 
 

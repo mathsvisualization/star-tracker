@@ -58,6 +58,10 @@ def format_withdrawal(withdrawal):
         withdrawal["rate"],
     )
 
+    fee = withdrawal.get("fee", Decimal("0"))
+    net_usd = result["usd"] - fee
+    net_inr = net_usd * withdrawal["rate"]
+
     if date <= parse_date(str(__import__("datetime").datetime.now().date())):
         status = "Completed"
     else:
@@ -68,8 +72,11 @@ def format_withdrawal(withdrawal):
         f"Stars       : {withdrawal['stars']:,}",
         f"Status      : {status}",
         f"Rate        : Rs. {withdrawal['rate']}/USD",
-        f"Payout USD  : ${result['usd']:,.2f}",
-        f"Payout INR  : Rs. {result['inr']:,.2f}",
+        f"Gross USD   : ${result['usd']:,.2f}",
+        f"Gross INR   : Rs. {result['inr']:,.2f}",
+        f"Binance Fee : ${fee:,.2f}",
+        f"Net USD     : ${net_usd:,.2f}",
+        f"Net INR     : Rs. {net_inr:,.2f}",
     ]
 
 
@@ -81,10 +88,32 @@ def withdrawal_total_lines(withdrawals):
         for withdrawal in withdrawals
     )
 
+    fees = sum(
+        (
+            withdrawal.get("fee", Decimal("0"))
+            for withdrawal in withdrawals
+        ),
+        Decimal("0"),
+    )
+
+    net_usd = usd - fees
+    net_inr = sum(
+        (
+            calculate(
+                withdrawal["stars"],
+                withdrawal["rate"],
+            )["usd"] - withdrawal.get("fee", Decimal("0"))
+        ) * withdrawal["rate"]
+        for withdrawal in withdrawals
+    )
+
     return [
         f"Total withdrawn : {total:,} Stars",
-        f"Total payout    : ${usd:,.2f}",
-        f"Total payout INR: Rs. {inr:,.2f}",
+        f"Gross payout    : ${usd:,.2f}",
+        f"Gross payout INR: Rs. {inr:,.2f}",
+        f"Total Binance fee: ${fees:,.2f}",
+        f"Net received    : ${net_usd:,.2f}",
+        f"Net received INR: Rs. {net_inr:,.2f}",
     ]
 
 

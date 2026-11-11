@@ -166,6 +166,7 @@ def test_apply_withdraw_record_with_rate():
             "date": "2026-01-20",
             "stars": 500,
             "rate": Decimal("105"),
+            "fee": Decimal("0"),
         }
     ]
 
@@ -185,9 +186,27 @@ def test_apply_withdraw_record_default_rate():
             "date": "2026-01-20",
             "stars": 500,
             "rate": Decimal("104"),
+            "fee": Decimal("0"),
         }
     ]
 
+def test_apply_withdraw_record_with_fee():
+    data = validation.new_data()
+
+    validation.apply_record(
+        data,
+        "WITHDRAW",
+        ["2026-01-20", "500", "105", "1.25"],
+    )
+
+    assert data["withdrawals"] == [
+        {
+            "date": "2026-01-20",
+            "stars": 500,
+            "rate": Decimal("105"),
+            "fee": Decimal("1.25"),
+        }
+    ]
 
 def test_duplicate_entry_rejected():
     data = validation.new_data()
@@ -249,6 +268,7 @@ def test_parse_lines_valid_records():
             "date": "2026-01-25",
             "stars": 500,
             "rate": Decimal("104"),
+            "fee": Decimal("0"),
         }
     ]
 

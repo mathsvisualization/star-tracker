@@ -148,8 +148,11 @@ def test_format_withdrawal_contains_expected_information():
 
     assert "Stars       : 500" in text
     assert "Rate        : Rs. 104/USD" in text
-    assert "Payout USD" in text
-    assert "Payout INR" in text
+    assert "Gross USD" in text
+    assert "Gross INR" in text
+    assert "Binance Fee" in text
+    assert "Net USD" in text
+    assert "Net INR" in text
 
 
 # ==================================================
@@ -174,9 +177,11 @@ def test_withdrawal_total_lines():
     text = "\n".join(lines)
 
     assert "Total withdrawn : 800 Stars" in text
-    assert "Total payout    :" in text
-    assert "Total payout INR:" in text
-
+    assert "Gross payout    :" in text
+    assert "Gross payout INR:" in text
+    assert "Total Binance fee:" in text
+    assert "Net received    :" in text
+    assert "Net received INR:" in text
 
 def test_withdrawal_total_lines_empty():
     lines = report.withdrawal_total_lines([])

@@ -362,7 +362,7 @@ def test_add_withdrawal_success(sample_data, monkeypatch):
         lambda: date(2026, 1, 15),
     )
 
-    values = iter(["2026-01-15", "500"])
+    values = iter(["2026-01-15", "500", ""])
 
     monkeypatch.setattr(
         "builtins.input",
@@ -413,35 +413,52 @@ def test_add_withdrawal_locked(locked_data, monkeypatch):
     actions.add_withdrawal(locked_data)
 
 
-def test_edit_withdrawal_rate_success(sample_data, monkeypatch):
-    withdrawal = {
-        "date": "2026-01-01",
-        "stars": 500,
-        "rate": Decimal("104"),
-    }
+def test_edit_withdrawal_success(sample_data, monkeypatch):
+    sample_data["withdrawals"] = [
+        {
+            "date": "2026-01-01",
+            "stars": 500,
+            "rate": Decimal("104"),
+            "fee": Decimal("0"),
+        }
+    ]
 
-    sample_data["withdrawals"] = [withdrawal]
-
-    values = iter(["1", "110"])
+    values = iter([
+        "1",             # Select withdrawal
+        "2026-01-02",    # New date
+        "600",           # New Stars
+        "110",           # New rate
+        "1.25",          # New fee
+    ])
 
     monkeypatch.setattr(
         "builtins.input",
         lambda _: next(values),
     )
 
-    monkeypatch.setattr(actions, "save_data", lambda data: None)
+    monkeypatch.setattr(
+        actions,
+        "save_data",
+        lambda data: None,
+    )
 
-    actions.edit_withdrawal_rate(sample_data)
+    actions.edit_withdrawal(sample_data)
 
-    assert withdrawal["rate"] == Decimal("110")
+    assert sample_data["withdrawals"][0] == {
+        "date": "2026-01-02",
+        "stars": 600,
+        "rate": Decimal("110"),
+        "fee": Decimal("1.25"),
+    }
 
 
-def test_edit_withdrawal_rate_cancel(sample_data, monkeypatch):
+def test_edit_withdrawal_cancel(sample_data, monkeypatch):
     sample_data["withdrawals"] = [
         {
             "date": "2026-01-01",
             "stars": 500,
             "rate": Decimal("104"),
+            "fee": Decimal("0"),
         }
     ]
 
@@ -456,7 +473,7 @@ def test_edit_withdrawal_rate_cancel(sample_data, monkeypatch):
         lambda data: pytest.fail("Should not save"),
     )
 
-    actions.edit_withdrawal_rate(sample_data)
+    actions.edit_withdrawal(sample_data)
 
 
 def test_delete_withdrawal_confirmed(sample_data, monkeypatch):
